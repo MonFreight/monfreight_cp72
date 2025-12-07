@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon Freight – CP72 Customs Declaration</title>
+
+    <style>
+        body {
+            font-family: Inter, Arial, sans-serif;
+            background: #f5f7f8;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 850px;
+            background: white;
+            margin: 40px auto;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 0 12px rgba(0,0,0,0.15);
+        }
+
+        h2 {
+            text-align: center;
+            margin-top: 5px;
+            color: #1a505b;
+        }
+
+        .logo-box {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .logo-box img {
+            width: 220px;
+        }
+
+        label {
+            font-weight: 600;
+            margin-top: 12px;
+            display: block;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 9px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            margin-top: 4px;
+            font-size: 15px;
+        }
+
+        textarea {
+            resize: vertical;
+        }
+
+        .section-title {
+            background: #1a505b;
+            color: white;
+            padding: 8px 14px;
+            border-radius: 5px;
+            margin-top: 25px;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th, td {
+            border: 1px solid #aaa;
+            padding: 8px;
+            font-size: 14px;
+        }
+        th {
+            background: #e1e1e1;
+        }
+
+        .btn {
+            background: #1a505b;
+            color: white;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 8px;
+            font-size: 13px;
+        }
+
+        .btn:hover {
+            background: #0d2e33;
+        }
+
+        .choice-wrapper {
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+
+        .choice-wrapper label {
+            font-weight: normal;
+            display: inline-block;
+            margin-right: 20px;
+            font-size: 15px;
+        }
+
+        .signature-box {
+            border: 2px solid #ccc;
+            width: 100%;
+            height: 160px;
+            border-radius: 6px;
+            margin-top: 8px;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="logo-box">
+        <img src="/static/monfreight_logo.png" alt="Mon Freight Logo">
+    </div>
+
+    <h2>CP72 Customs Declaration Form / Монгол хэлээр бөглөнө үү! </h2>
+
+    <form action="/submit_cp72" method="POST" onsubmit="submitSignature()">
+
+        <!-- Sender Details -->
+        <div class="section-title">Sender Details</div>
+
+        <label>Full Name / Овог, нэр:</label>
+        <input type="text" name="sender" required>
+
+        <label>Address / Хаяг:</label>
+        <textarea name="senderAddress" required></textarea>
+
+        <label>Phone Number / Утасны дугаар:</label>
+        <input type="text" name="senderPhone" required>
+
+        <!-- Recipient Details -->
+        <div class="section-title">Recipient Details</div>
+
+        <label>Full Name / Овог, нэр:</label>
+        <input type="text" name="recipient" required>
+
+        <label>Address / Хаяг:</label>
+        <textarea name="recipientAddress" required></textarea>
+
+        <label>Phone Number /  Утасны дугаар:</label>
+        <input type="text" name="recipientPhone" required>
+
+        <!-- Goods Table -->
+        <div class="section-title">Goods Description</div>
+
+        <table id="goodsTable">
+            <tr>
+                <th>#</th>
+                <th>Description</th>
+                <th>Qty</th>
+                <th>Weight (kg)</th>
+                <th>Origin</th>
+                <th>Value (AUD)</th>
+                <th>Action</th>
+            </tr>
+
+            <tr>
+                <td>1</td>
+                <td><input type="text" name="item_description[]"></td>
+                <td><input type="number" name="item_quantity[]" min="1"></td>
+                <td><input type="number" step="0.01" name="item_weight[]"></td>
+                <td><input type="text" name="item_origin[]"></td>
+                <td><input type="number" step="0.01" name="item_value[]" oninput="updateDeclaredValue()"></td>
+                <td><button type="button" class="btn" onclick="deleteRow(this)">Delete</button></td>
+            </tr>
+        </table>
+
+        <button type="button" class="btn" onclick="addRow()">+ Add Row</button>
+
+        <!-- Weight Section -->
+        <div class="section-title">Weight & Measurement</div>
+
+        <label>Actual Weight (kg):</label>
+        <input type="number" step="0.01" name="weight" id="weight" required oninput="calcVolume()">
+
+        <label>Length (cm):</label>
+        <input type="number" step="0.01" name="length" id="length" required oninput="calcVolume()">
+
+        <label>Width (cm):</label>
+        <input type="number" step="0.01" name="width" id="width" required oninput="calcVolume()">
+
+        <label>Height (cm):</label>
+        <input type="number" step="0.01" name="height" id="height" required oninput="calcVolume()">
+
+        <label>Volumetric Weight (kg):</label>
+        <input type="text" id="volumetricWeight" name="volumetricWeight" readonly>
+
+        <label>Chargeable Weight (kg):</label>
+        <input type="text" id="finalWeight" name="finalWeight" readonly>
+
+        <!-- Declared Value -->
+        <label><strong>Declared Total Value (AUD):</strong></label>
+        <input type="number" name="value" id="declaredValue" required>
+
+        <!-- Delivery Option -->
+        <div class="section-title">Delivery Option</div>
+
+        <div class="choice-wrapper">
+            <label><input type="radio" name="deliveryOption" value="📦 Warehouse Pickup" required> 📦 Warehouse Pickup / Агуулахаас авах</label>
+            <label><input type="radio" name="deliveryOption" value="🚚 Delivery to Address" required> 🚚 Delivery to Address / Хаягаар хүргүүлэх</label>
+            <label><input type="radio" name="deliveryOption" value="📮 Closest Parcel Box" required> 📮 Closest Parcel Box / Хайрцагт байршуулах</label>
+        </div>
+
+        <!-- Copy Email -->
+        <div class="section-title">Send Customer Copy?</div>
+
+        <div class="choice-wrapper">
+            <label><input type="radio" name="sendCopy" value="no" checked onclick="toggleCustomerEmail(false)"> No</label>
+            <label><input type="radio" name="sendCopy" value="yes" onclick="toggleCustomerEmail(true)"> Yes</label>
+        </div>
+
+        <div id="customerEmailBox" style="display:none;">
+            <label>Your Email:</label>
+            <input type="email" name="customerEmail">
+        </div>
+
+        <!-- Signature -->
+        <div class="section-title">Signature</div>
+
+        <canvas id="signaturePad" class="signature-box"></canvas>
+        <button type="button" class="btn" onclick="clearSignature()">Clear Signature</button>
+        <input type="hidden" id="signatureData" name="signatureData">
+
+        <button type="submit" class="btn" style="width:100%; margin-top:25px;">Submit CP72</button>
+
+    </form>
+</div>
+
+<script>
+/* ------------------ ADD & DELETE ROW ------------------ */
+function addRow() {
+    const table = document.getElementById("goodsTable");
+    const index = table.rows.length; // header is row 0
+
+    const row = table.insertRow(-1);
+    row.innerHTML = `
+        <td>${index}</td>
+        <td><input type="text" name="item_description[]"></td>
+        <td><input type="number" name="item_quantity[]" min="1"></td>
+        <td><input type="number" step="0.01" name="item_weight[]"></td>
+        <td><input type="text" name="item_origin[]"></td>
+        <td><input type="number" step="0.01" name="item_value[]" oninput="updateDeclaredValue()"></td>
+        <td><button type="button" class="btn" onclick="deleteRow(this)">Delete</button></td>
+    `;
+}
+
+function deleteRow(btn) {
+    const row = btn.parentNode.parentNode;
+    row.parentNode.removeChild(row);
+    updateDeclaredValue();
+}
+
+/* ------------------ AUTO TOTAL VALUE ------------------ */
+function updateDeclaredValue() {
+    let total = 0;
+    document.querySelectorAll("input[name='item_value[]']").forEach(v => {
+        total += parseFloat(v.value) || 0;
+    });
+    document.getElementById("declaredValue").value = total.toFixed(2);
+}
+
+/* ------------------ VOLUMETRIC WEIGHT ------------------ */
+function calcVolume() {
+    let L = parseFloat(document.getElementById("length").value) || 0;
+    let W = parseFloat(document.getElementById("width").value) || 0;
+    let H = parseFloat(document.getElementById("height").value) || 0;
+    let weight = parseFloat(document.getElementById("weight").value) || 0;
+
+    let vol = (L * W * H) / 6000;
+    document.getElementById("volumetricWeight").value = vol.toFixed(2);
+    document.getElementById("finalWeight").value = Math.max(weight, vol).toFixed(2);
+}
+
+/* ------------------ CUSTOMER EMAIL TOGGLE ------------------ */
+function toggleCustomerEmail(show) {
+    document.getElementById("customerEmailBox").style.display = show ? "block" : "none";
+}
+
+/* ------------------ RETINA-SAFE SIGNATURE PAD ------------------ */
+const canvas = document.getElementById("signaturePad");
+const ctx = canvas.getContext("2d");
+let drawing = false;
+
+function resizeCanvasForRetina() {
+    const ratio = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+
+    canvas.width = rect.width * ratio;
+    canvas.height = rect.height * ratio;
+
+    ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+    ctx.lineWidth = 2;
+    ctx.lineCap = "round";
+}
+
+function getCanvasPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    let clientX, clientY;
+
+    if (e.touches && e.touches.length > 0) {
+        clientX = e.touches[0].clientX;
+        clientY = e.touches[0].clientY;
+    } else {
+        clientX = e.clientX;
+        clientY = e.clientY;
+    }
+
+    return {
+        x: clientX - rect.left,
+        y: clientY - rect.top
+    };
+}
+
+canvas.addEventListener("mousedown", e => {
+    drawing = true;
+    const pos = getCanvasPos(e);
+    ctx.beginPath();
+    ctx.moveTo(pos.x, pos.y);
+});
+
+canvas.addEventListener("mousemove", e => {
+    if (!drawing) return;
+    const pos = getCanvasPos(e);
+    ctx.lineTo(pos.x, pos.y);
+    ctx.stroke();
+});
+
+canvas.addEventListener("mouseup", () => { drawing = false; });
+canvas.addEventListener("mouseleave", () => { drawing = false; });
+
+// Touch support
+canvas.addEventListener("touchstart", e => {
+    e.preventDefault();
+    drawing = true;
+    const pos = getCanvasPos(e);
+    ctx.beginPath();
+    ctx.moveTo(pos.x, pos.y);
+});
+
+canvas.addEventListener("touchmove", e => {
+    e.preventDefault();
+    if (!drawing) return;
+    const pos = getCanvasPos(e);
+    ctx.lineTo(pos.x, pos.y);
+    ctx.stroke();
+});
+
+canvas.addEventListener("touchend", () => { drawing = false; });
+
+function clearSignature() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+function submitSignature() {
+    document.getElementById("signatureData").value = canvas.toDataURL();
+}
+
+window.addEventListener("load", resizeCanvasForRetina);
+window.addEventListener("resize", resizeCanvasForRetina);
+
+
+window.onload = function() {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("success") === "true") {
+        alert("📦 Your CP72 form has been sent to Mon Freight successfully!");
+    }
+};
+
+
+</script>
+
+</body>
+</html>
