@@ -443,24 +443,44 @@ def send_cp72_email(recipients, pdf_bytes, sender_name, recipient_name):
         filename="CP72_Form.pdf",
     )
 
-    import ssl
+    
 
-    def send_cp72_email(recipients, pdf_bytes, sender, recipient):
-        smtp_server = os.getenv("smtp.gmail.com")
-        smtp_port = int(os.getenv("587"))
-        smtp_email = os.getenv("monfreight.documents@gmail.com")
-        smtp_password = os.getenv("Suupqbtvjawmkmulg")
+    import os
+    from sendgrid import SendGridAPIClient
+    from sendgrid.helpers.mail import (
+        Mail, Attachment, FileContent, FileName, FileType, Disposition
+    )
+    import base64
 
-        context = ssl.create_default_context()
 
-        with smtplib.SMTP(smtp_server, smtp_port, timeout=30) as server:
-            server.ehlo()
-            server.starttls(context=context)
-            server.ehlo()
-            server.login(smtp_email, smtp_password)
+    def send_cp72_email(recipients, pdf_bytes, sender_name, recipient_name):
+        api_key = os.getenv("SENDGRID_API_KEY")
 
-            # your existing code that creates message and sends it
-            server.sendmail(smtp_email, recipients, message.as_string())
+        message = Mail(
+            from_email=("monfreight.documents@gmail.com", sender_name),
+            to_emails=recipients,
+            subject="📄 CP72 Form Submission",
+            html_content=f"""
+            <p>Hello {recipient_name},</p>
+            <p>Your CP72 form has been generated and is attached as a PDF.</p>
+            <p>Regards,<br>Mon Freight System</p>
+            """,
+        )
+
+    encoded_pdf = base64.b64encode(pdf_bytes).decode()
+
+    attachment = Attachment(
+        FileContent(encoded_pdf),
+        FileName("CP72_Form.pdf"),
+        FileType("application/pdf"),
+        Disposition("attachment")
+    )
+
+    message.attachment = attachment
+
+    sg = SendGridAPIClient(api_key)
+    sg.send(message)
+
 
 
 
