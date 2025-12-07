@@ -2,7 +2,6 @@ import os
 import base64
 import io
 import smtplib
-from email.message import EmailMessage
 import datetime
 
 from flask import Flask, render_template, request, redirect, url_for, flash
@@ -479,7 +478,7 @@ def send_cp72_email(recipients, pdf_bytes, sender_name, recipient_name):
     message.attachment = attachment
 
     sg = SendGridAPIClient(api_key)
-    sg.send(message)
+    sg.send(email)
 
 
 
