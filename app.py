@@ -443,10 +443,25 @@ def send_cp72_email(recipients, pdf_bytes, sender_name, recipient_name):
         filename="CP72_Form.pdf",
     )
 
-    with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
-        server.starttls()
-        server.login(SMTP_USER, SMTP_PASSWORD)
-        server.send_message(msg)
+    import ssl
+
+    def send_cp72_email(recipients, pdf_bytes, sender, recipient):
+        smtp_server = os.getenv("smtp.gmail.com")
+        smtp_port = int(os.getenv("587"))
+        smtp_email = os.getenv("monfreight.documents@gmail.com")
+        smtp_password = os.getenv("Suupqbtvjawmkmulg")
+
+        context = ssl.create_default_context()
+
+        with smtplib.SMTP(smtp_server, smtp_port, timeout=30) as server:
+            server.ehlo()
+            server.starttls(context=context)
+            server.ehlo()
+            server.login(smtp_email, smtp_password)
+
+            # your existing code that creates message and sends it
+            server.sendmail(smtp_email, recipients, message.as_string())
+
 
 
 if __name__ == "__main__":
