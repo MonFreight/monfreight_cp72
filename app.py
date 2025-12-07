@@ -454,7 +454,7 @@ def send_cp72_email(recipients, pdf_bytes, sender_name, recipient_name):
 
 
     def send_cp72_email(recipients, pdf_bytes, sender_name, recipient_name):
-        api_key = os.getenv("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")
+        api_key = os.getenv("SENDGRID_API_KEY")
 
         message = Mail(
             from_email=("monfreight.documents@gmail.com", sender_name),
