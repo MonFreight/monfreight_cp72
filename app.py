@@ -32,6 +32,47 @@ app.secret_key = os.environ.get("FLASK_SECRET_KEY", "dev-secret-key")
 # --------------------------
 MON_FREIGHT_TO = "info@monfreight.com.au"
 
+# --------------------------
+# EMAIL SENDING (SendGrid)
+# --------------------------
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import (
+    Mail, Attachment, FileContent, FileName, FileType, Disposition
+)
+
+def send_cp72_email(recipients, pdf_bytes, sender_name, recipient_name):
+    api_key = os.getenv("SENDGRID_API_KEY")
+    if not api_key:
+        raise ValueError("SENDGRID_API_KEY not set!")
+
+    email = Mail(
+        from_email=("no-reply@monfreight.com.au", "Mon Freight CP72 System"),
+        to_emails=recipients,
+        subject=f"📄 CP72 Form – {sender_name} → {recipient_name}",
+        html_content=f"""
+        <p>Hello,</p>
+        <p>Your CP72 customs declaration form is attached.</p>
+        <p><strong>Sender:</strong> {sender_name}<br>
+        <strong>Recipient:</strong> {recipient_name}</p>
+        <p>Best regards,<br>Mon Freight CP72 System</p>
+        """
+    )
+
+    encoded_pdf = base64.b64encode(pdf_bytes).decode()
+
+    attachment = Attachment(
+        FileContent(encoded_pdf),
+        FileName("CP72_Form.pdf"),
+        FileType("application/pdf"),
+        Disposition("attachment")
+    )
+
+    email.attachment = attachment
+
+    sg = SendGridAPIClient(api_key)
+    sg.send(email)
+    return True
+
 
 @app.route("/", methods=["GET"])
 def index():
