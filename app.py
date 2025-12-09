@@ -1,7 +1,6 @@
 import os
 import base64
 import io
-import smtplib
 import datetime
 
 from flask import Flask, render_template, request, redirect, url_for, flash
@@ -32,12 +31,6 @@ app.secret_key = os.environ.get("FLASK_SECRET_KEY", "dev-secret-key")
 # EMAIL SETTINGS
 # --------------------------
 MON_FREIGHT_TO = "info@monfreight.com.au"
-
-SMTP_SERVER = os.getenv("SMTP_SERVER", "smtp.gmail.com")
-SMTP_PORT = int(os.getenv("SMTP_PORT", 587))
-SMTP_USER = os.getenv("SMTP_USER", "monfreight.documents@gmail.com")
-SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "uupqbtvjawmkmulg")
-FROM_EMAIL = os.getenv("monfreight.documents@gmail.com", SMTP_USER)
 
 
 @app.route("/", methods=["GET"])
@@ -415,70 +408,45 @@ def generate_cp72_pdf(
     buffer.close()
     return pdf
 
-
-# --------------------------
-# EMAIL SENDING
-# --------------------------
-def send_cp72_email(recipients, pdf_bytes, sender_name, recipient_name):
-    msg = EmailMessage()
-    msg["Subject"] = f"CP72 Customs Declaration - {sender_name} → {recipient_name}"
-    msg["From"] = FROM_EMAIL
-    msg["To"] = ", ".join(recipients)
-
-    body = (
-        "Dear Team,\n\n"
-        "Please find attached the CP72 customs declaration form.\n\n"
-        f"Sender: {sender_name}\n"
-        f"Recipient: {recipient_name}\n\n"
-        "Kind regards,\n"
-        "Mon Freight CP72 System"
-    )
-    msg.set_content(body)
-
-    msg.add_attachment(
-        pdf_bytes,
-        maintype="application",
-        subtype="pdf",
-        filename="CP72_Form.pdf",
-    )
-
-    
-
-    import os
+    # --------------------------
+    # EMAIL SENDING (SendGrid only)
+    # --------------------------
     from sendgrid import SendGridAPIClient
     from sendgrid.helpers.mail import (
         Mail, Attachment, FileContent, FileName, FileType, Disposition
     )
-    import base64
-
 
     def send_cp72_email(recipients, pdf_bytes, sender_name, recipient_name):
-        api_key = os.getenv("SENDGRID_API_KEY")
+         api_key = os.getenv("SENDGRID_API_KEY")
+         if not api_key:
+             raise ValueError("SENDGRID_API_KEY not set in environment!")
 
-        message = Mail(
-            from_email=("monfreight.documents@gmail.com", sender_name),
-            to_emails=recipients,
-            subject="📄 CP72 Form Submission",
-            html_content=f"""
-            <p>Hello {recipient_name},</p>
-            <p>Your CP72 form has been generated and is attached as a PDF.</p>
-            <p>Regards,<br>Mon Freight System</p>
-            """,
-        )
+         email = Mail(
+             from_email=("no-reply@monfreight.com.au", "Mon Freight CP72 System"),
+             to_emails=recipients,
+             subject=f"📄 CP72 Form – {sender_name} → {recipient_name}",
+             html_content=f"""
+             <p>Hello,</p>
+             <p>Your CP72 customs declaration form is attached.</p>
+             <p><strong>Sender:</strong> {sender_name}<br>
+            <strong>Recipient:</strong> {recipient_name}</p>
+            <p>Best regards,<br>Mon Freight CP72 System</p>
+            """
+         )
 
-    encoded_pdf = base64.b64encode(pdf_bytes).decode()
+         encoded_pdf = base64.b64encode(pdf_bytes).decode()
 
-    attachment = Attachment(
-        FileContent(encoded_pdf),
-        FileName("CP72_Form.pdf"),
-        FileType("application/pdf"),
-        Disposition("attachment")
-    )
+         attachment = Attachment(
+             FileContent(encoded_pdf),
+             FileName("CP72_Form.pdf"),
+             FileType("application/pdf"),
+             Disposition("attachment")
+         )
+     
+         email.attachment = attachment
 
-    message.attachment = attachment
-
-    sg = SendGridAPIClient(api_key)
-    sg.send(email)
+         sg = SendGridAPIClient(api_key)
+         sg.send(email)
 
 
 
