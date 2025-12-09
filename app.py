@@ -425,7 +425,7 @@ def generate_cp72_pdf(
         email = Mail(
             from_email=("no-reply@monfreight.com.au", "Mon Freight CP72 System"),
             to_emails=recipients,
-            subject=f"📄 CP72 Form – {sender_name} → {recipient_name}",
+            subject=f"📄 CP72 Form  {sender_name} → {recipient_name}",
             html_content=f"""
                 <p>Hello,</p>
                 <p>Your CP72 customs declaration form is attached.</p>
