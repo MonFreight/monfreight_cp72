@@ -46,7 +46,7 @@ def send_cp72_email(recipients, pdf_bytes, sender_name, recipient_name):
         raise ValueError("SENDGRID_API_KEY not set!")
 
     email = Mail(
-        from_email=("noreply@sendgrid.me", "Mon Freight CP72 System"),
+        from_email=("noreply@monfreight.online", "Mon Freight CP72 System"),
         to_emails=recipients,
         subject=f"📄 CP72 Form – {sender_name} → {recipient_name}",
         html_content=f"""
