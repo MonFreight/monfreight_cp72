@@ -85,6 +85,7 @@ def submit_cp72():
     sender = request.form.get("sender", "").strip()
     sender_address = request.form.get("senderAddress", "").strip()
     sender_phone = request.form.get("senderPhone", "").strip()
+    box_number = request.form.get("boxNumber", "").strip()
 
     recipient = request.form.get("recipient", "").strip()
     recipient_address = request.form.get("recipientAddress", "").strip()
@@ -149,6 +150,7 @@ def submit_cp72():
         sender,
         sender_address,
         sender_phone,
+        box_number,
         recipient,
         recipient_address,
         recipient_phone,
@@ -204,6 +206,7 @@ def generate_cp72_pdf(
     sender,
     sender_address,
     sender_phone,
+    box_number,
     recipient,
     recipient_address,
     recipient_phone,
@@ -279,6 +282,10 @@ def generate_cp72_pdf(
 
     c.drawString(20 * mm, y, "Address / Хаяг:")
     y -= 4 * mm
+
+    c.drawString(20 * mm, y, f"Box Number: {box_number}")
+    y -= 5 * mm
+
 
     for line in wrap_text(sender_address, 95):
         c.drawString(25 * mm, y, line)
