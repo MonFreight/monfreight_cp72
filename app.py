@@ -44,7 +44,7 @@ def send_cp72_email(recipients, pdf_bytes, sender_name, recipient_name):
 
     try:
         resend.Emails.send({
-            "from": "Mon Freight <no-reply@monfreight.com>",
+            "from": "Mon Freight <onboarding@resend.dev>",
             "to": recipients,
             "subject": f"📄 CP72 Form - {sender_name} → {recipient_name}",
             "html": f"""
