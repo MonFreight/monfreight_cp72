@@ -234,7 +234,7 @@ def generate_cp72_pdf(
                 width_page - 55 * mm,       # a bit more left
                 height_page - 24 * mm,      # slightly higher
                 width=48 * mm,              # bigger logo (Option A)
-                height=18 * mm,
+                height=17 * mm,
                 preserveAspectRatio=True,
                 mask="auto",
             )
