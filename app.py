@@ -250,9 +250,6 @@ def generate_cp72_pdf(
     c.setFont("NotoSans-Bold", 13)
     c.drawString(20 * mm, height_page - 27 * mm, "CP72 CUSTOMS DECLARATION FORM")
 
-    c.setFont("NotoSans-Bold", 14)
-    c.drawRightString(width_page - 20 * mm, title_y, f"Box Number: {box_number}")
-
     y = height_page - 40 * mm
 
     # --------------------------
