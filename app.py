@@ -246,9 +246,13 @@ def generate_cp72_pdf(
     # --------------------------
     c.setFont("NotoSans-Bold", 16)
     c.drawString(20 * mm, height_page - 20 * mm, "MON FREIGHT")
+    
+    title_y = height_page - 27 * mm
+    c.setFont("NotoSans-Bold", 13)
+    c.drawString(20 * mm, title_y, "CP72 CUSTOMS DECLARATION FORM")
 
     c.setFont("NotoSans-Bold", 13)
-    c.drawString(20 * mm, height_page - 27 * mm, "CP72 CUSTOMS DECLARATION FORM")
+    c.drawRightString(width_page - 20 * mm, title_y, f"Box Number: {box_number}")
 
     y = height_page - 40 * mm
 
@@ -280,10 +284,7 @@ def generate_cp72_pdf(
     c.drawString(20 * mm, y, "Address / Хаяг:")
     y -= 4 * mm
 
-    c.drawString(20 * mm, y, f"Box Number: {box_number}")
-    y -= 5 * mm
-
-
+    
     for line in wrap_text(sender_address, 95):
         c.drawString(25 * mm, y, line)
         y -= 4 * mm
