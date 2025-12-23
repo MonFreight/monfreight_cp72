@@ -32,46 +32,43 @@ app.secret_key = os.environ.get("FLASK_SECRET_KEY", "dev-secret-key")
 # --------------------------
 MON_FREIGHT_TO = "info@monfreight.com.au"
 
-# --------------------------
-# EMAIL SENDING (SendGrid)
-# --------------------------
-from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import (
-    Mail, Attachment, FileContent, FileName, FileType, Disposition
-)
+import os
+import base64
+import resend
+
+resend.api_key = os.getenv("RESEND_API_KEY")
 
 def send_cp72_email(recipients, pdf_bytes, sender_name, recipient_name):
-    api_key = os.getenv("SENDGRID_API_KEY")
-    if not api_key:
-        raise ValueError("SENDGRID_API_KEY not set!")
+    if not resend.api_key:
+        raise ValueError("RESEND_API_KEY not set!")
 
-    email = Mail(
-        from_email=("noreply@monfreight.online", "Mon Freight CP72 System"),
-        to_emails=recipients,
-        subject=f"📄 CP72 Form - {sender_name} → {recipient_name}",
-        html_content=f"""
-        <p>Hello,</p>
-        <p>Your CP72 customs declaration form is attached.</p>
-        <p><strong>Sender:</strong> {sender_name}<br>
-        <strong>Recipient:</strong> {recipient_name}</p>
-        <p>Best regards,<br>Mon Freight CP72 System</p>
-        """
-    )
+    try:
+        resend.Emails.send({
+            "from": "Mon Freight <no-reply@monfreight.com>",
+            "to": recipients,
+            "subject": f"📄 CP72 Form - {sender_name} → {recipient_name}",
+            "html": f"""
+                <p>Hello,</p>
+                <p>Your CP72 customs declaration form is attached.</p>
+                <p><strong>Sender:</strong> {sender_name}<br>
+                <strong>Recipient:</strong> {recipient_name}</p>
+                <p>Best regards,<br>Mon Freight CP72 System</p>
+            """,
+            "attachments": [
+                {
+                    "filename": "CP72_Form.pdf",
+                    "content": base64.b64encode(pdf_bytes).decode(),
+                    "type": "application/pdf"
+                }
+            ]
+        })
 
-    encoded_pdf = base64.b64encode(pdf_bytes).decode()
+        print("Email sent successfully")
+        return True
 
-    attachment = Attachment(
-        FileContent(encoded_pdf),
-        FileName("CP72_Form.pdf"),
-        FileType("application/pdf"),
-        Disposition("attachment")
-    )
-
-    email.attachment = attachment
-
-    sg = SendGridAPIClient(api_key)
-    sg.send(email)
-    return True
+    except Exception as e:
+        print("Email failed:", e)
+        return False
 
 
 @app.route("/", methods=["GET"])
