@@ -115,6 +115,41 @@
         .choice-wrapper input[type="radio"] { width:auto; margin:0; accent-color:var(--blue); }
 
 
+
+        /* ---- Success overlay ---- */
+        .success-overlay {
+            position:fixed; inset:0; z-index:9999;
+            background:rgba(5,43,52,.78); backdrop-filter:blur(4px);
+            display:none; align-items:center; justify-content:center; padding:20px;
+        }
+        .success-overlay.show { display:flex; }
+        .success-card {
+            background:#fff; border-radius:22px; max-width:430px; width:100%;
+            padding:38px 30px 30px; text-align:center;
+            box-shadow:0 30px 80px rgba(0,0,0,.4);
+            animation:pop .45s cubic-bezier(.34,1.56,.64,1) both;
+        }
+        @keyframes pop { from{opacity:0; transform:scale(.7) translateY(30px)} to{opacity:1; transform:none} }
+        .success-check {
+            width:86px; height:86px; margin:0 auto 18px; border-radius:50%;
+            background:var(--sky); display:flex; align-items:center; justify-content:center;
+        }
+        .success-check svg { width:48px; height:48px; }
+        .success-check path {
+            stroke:var(--blue-deep); stroke-width:5; fill:none;
+            stroke-linecap:round; stroke-linejoin:round;
+            stroke-dasharray:60; stroke-dashoffset:60;
+            animation:draw .6s .25s ease forwards;
+        }
+        @keyframes draw { to { stroke-dashoffset:0; } }
+        .success-card h2 { margin:0 0 8px; color:var(--navy); font-size:1.35rem; }
+        .success-card p  { margin:0 0 22px; color:var(--body-c); font-size:15px; line-height:1.6; }
+        .success-card .btn {
+            width:100%; background:var(--amber); color:var(--navy-2);
+            font-size:16px; font-weight:800; padding:14px; border-radius:12px; margin:0;
+        }
+        .success-card .btn:hover { background:var(--amber-dark); }
+
         /* ---- 3D delivery option cards ---- */
         .delivery-grid {
             display:grid; grid-template-columns:repeat(3,1fr); gap:14px;
@@ -532,16 +567,32 @@ window.addEventListener("load", resizeCanvasForRetina);
 window.addEventListener("resize", resizeCanvasForRetina);
 
 
-window.onload = function() {
+window.addEventListener("load", function() {
     const params = new URLSearchParams(window.location.search);
     if (params.get("success") === "true") {
-        alert("📦 Your CP72 form has been sent to Mon Freight successfully!");
+        document.getElementById("successOverlay").classList.add("show");
+        window.scrollTo(0, 0);
+        // clean the URL so a refresh doesn't re-show the message
+        history.replaceState(null, "", window.location.pathname);
     }
-};
+});
 
 
 </script>
 
+
+
+<div class="success-overlay" id="successOverlay" role="alertdialog" aria-modal="true">
+  <div class="success-card">
+    <div class="success-check">
+      <svg viewBox="0 0 52 52"><path d="M12 27 L22 37 L40 17"/></svg>
+    </div>
+    <h2>Амжилттай илгээгдлээ! 📦✈️</h2>
+    <p>Таны CP72 маягт Mon Freight-д хүрлээ.<br>
+       Your CP72 form has been sent to Mon Freight successfully.</p>
+    <button type="button" class="btn" onclick="document.getElementById('successOverlay').classList.remove('show')">OK / Хаах</button>
+  </div>
+</div>
 
 <script>
 /* 3D tilt for delivery cards — follows the cursor, resets on leave */
