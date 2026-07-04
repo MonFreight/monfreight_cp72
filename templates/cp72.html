@@ -130,6 +130,28 @@
 
 
 
+
+        /* ---- terms + signature validation ---- */
+        .terms-row {
+            display:flex; align-items:flex-start; gap:11px;
+            border:1.5px solid var(--line); border-radius:12px;
+            padding:14px 15px; margin:4px 0 16px; cursor:pointer;
+            font-weight:600; color:var(--ink); font-size:14.5px; line-height:1.5;
+            transition:border-color .2s, background .2s;
+        }
+        .terms-row:hover { border-color:var(--blue); background:var(--bg-soft); }
+        .terms-row:has(input:checked) { border-color:var(--blue); background:var(--sky); }
+        .terms-row input[type="checkbox"] {
+            width:20px; height:20px; margin:1px 0 0; flex-shrink:0; accent-color:var(--blue);
+        }
+        .terms-row a { color:var(--blue-deep); text-decoration:underline; }
+        .sig-warning {
+            display:none; margin-top:10px; padding:11px 14px; border-radius:10px;
+            background:#fdecec; border:1.5px solid #e24b4a; color:#a32d2d;
+            font-size:14px; font-weight:600;
+        }
+        .sig-warning.show { display:block; }
+
         /* ---- Success overlay ---- */
         .success-overlay {
             position:fixed; inset:0; z-index:9999;
@@ -233,7 +255,7 @@
 
 <div class="container">
 
-  <form action="/submit_cp72" method="POST" onsubmit="submitSignature()">
+  <form action="/submit_cp72" method="POST" onsubmit="return submitSignature()">
 
     <!-- Sender Details -->
     <div class="card">
@@ -433,11 +455,18 @@
     <div class="card">
       <div class="card-head">
         <div class="step">6</div>
-        <h3>Signature <small>Гарын үсэг</small></h3>
+        <h3>Terms &amp; Signature <small>Нөхцөл зөвшөөрөх, гарын үсэг</small></h3>
       </div>
+
+      <label class="terms-row">
+        <input type="checkbox" name="acceptTerms" value="yes" required>
+        <span>I have read and accept the <a href="https://monfreight.com.au/terms.html" target="_blank" rel="noopener">Terms and Conditions</a> /
+        Би <a href="https://monfreight.com.au/terms.html" target="_blank" rel="noopener">Үйлчилгээний нөхцөлийг</a> уншиж, зөвшөөрсөн.</span>
+      </label>
 
       <canvas id="signaturePad" class="signature-box"></canvas>
       <button type="button" class="btn" onclick="clearSignature()">Clear Signature</button>
+      <div class="sig-warning" id="sigWarning">✍️ Гарын үсгээ зурна уу / Please draw your signature before submitting.</div>
       <input type="hidden" id="signatureData" name="signatureData">
     </div>
 
@@ -625,6 +654,36 @@ window.addEventListener("load", function() {
       card.style.transform = '';
     });
   });
+})();
+</script>
+
+<script>
+/* Signature required: track strokes, block submit while the pad is empty */
+(function () {
+  var pad = document.getElementById('signaturePad');
+  var warn = document.getElementById('sigWarning');
+  window.mfHasSig = false;
+  ['mousedown', 'touchstart'].forEach(function (ev) {
+    pad.addEventListener(ev, function () {
+      window.mfHasSig = true;
+      warn.classList.remove('show');
+    });
+  });
+  var origClear = window.clearSignature;
+  window.clearSignature = function () {
+    origClear();
+    window.mfHasSig = false;
+  };
+  var origSubmit = window.submitSignature;
+  window.submitSignature = function () {
+    if (!window.mfHasSig) {
+      warn.classList.add('show');
+      pad.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return false;
+    }
+    origSubmit();
+    return true;
+  };
 })();
 </script>
 </body>
