@@ -4,116 +4,177 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mon Freight - CP72 Customs Declaration</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
+        :root {
+            --navy: #073a45;
+            --navy-2: #052b34;
+            --blue: #008fb0;
+            --blue-deep: #0a6f86;
+            --sky: #e4f4f8;
+            --amber: #f6a821;
+            --amber-dark: #dd8e08;
+            --ink: #0f2229;
+            --body-c: #41535c;
+            --line: #e6edf1;
+            --bg-soft: #f4f9fb;
+            --radius: 14px;
+        }
+
+        * { box-sizing: border-box; }
+
         body {
-            font-family: Inter, Arial, sans-serif;
-            background: #f5f7f8;
+            font-family: "Plus Jakarta Sans", Inter, Arial, sans-serif;
+            background:
+                radial-gradient(900px 380px at 100% 0%, rgba(0,143,176,.08), transparent 60%),
+                var(--bg-soft);
+            color: var(--body-c);
             margin: 0;
             padding: 0;
         }
 
         .container {
             max-width: 850px;
-            background: white;
-            margin: 40px auto;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 0 12px rgba(0,0,0,0.15);
+            background: #fff;
+            margin: 48px auto;
+            padding: 38px 34px 34px;
+            border-radius: 22px;
+            border: 1px solid var(--line);
+            box-shadow: 0 14px 40px rgba(7,58,69,.10);
         }
 
         h2 {
             text-align: center;
-            margin-top: 5px;
-            color: #1a505b;
+            margin: 6px 0 24px;
+            color: var(--navy);
+            font-size: 1.45rem;
+            letter-spacing: -.02em;
         }
 
-        .logo-box {
-            text-align: center;
-            margin-bottom: 10px;
-        }
-
-        .logo-box img {
-            width: 220px;
-        }
+        .logo-box { text-align: center; margin-bottom: 12px; }
+        .logo-box img { width: 190px; }
 
         label {
             font-weight: 600;
-            margin-top: 12px;
+            color: var(--ink);
+            margin-top: 16px;
             display: block;
+            font-size: 14.5px;
         }
 
         input, textarea {
             width: 100%;
-            padding: 9px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            margin-top: 4px;
+            padding: 11px 13px;
+            border: 1.5px solid var(--line);
+            border-radius: 10px;
+            margin-top: 6px;
             font-size: 15px;
+            font-family: inherit;
+            color: var(--ink);
+            background: #fff;
+            transition: border-color .2s, box-shadow .2s;
         }
 
-        textarea {
-            resize: vertical;
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--blue);
+            box-shadow: 0 0 0 3px rgba(0,143,176,.14);
         }
+
+        input[readonly] { background: var(--bg-soft); color: var(--blue-deep); font-weight: 600; }
+
+        textarea { resize: vertical; min-height: 74px; }
 
         .section-title {
-            background: #1a505b;
-            color: white;
-            padding: 8px 14px;
-            border-radius: 5px;
-            margin-top: 25px;
-            font-size: 14px;
+            background: linear-gradient(120deg, var(--navy), var(--blue-deep));
+            color: #fff;
+            padding: 10px 16px;
+            border-radius: 10px;
+            margin-top: 30px;
+            font-size: 13.5px;
             font-weight: 700;
+            letter-spacing: .04em;
+            text-transform: uppercase;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 15px;
+            margin-top: 16px;
+            border-radius: 10px;
+            overflow: hidden;
         }
         th, td {
-            border: 1px solid #aaa;
+            border: 1px solid var(--line);
             padding: 8px;
             font-size: 14px;
         }
         th {
-            background: #e1e1e1;
+            background: var(--sky);
+            color: var(--navy);
+            font-weight: 700;
         }
+        td input { margin-top: 0; padding: 8px 10px; }
 
         .btn {
-            background: #1a505b;
-            color: white;
-            padding: 8px 12px;
+            background: var(--navy);
+            color: #fff;
+            padding: 10px 16px;
             border: none;
-            border-radius: 6px;
+            border-radius: 10px;
             cursor: pointer;
-            margin-top: 8px;
-            font-size: 13px;
-        }
-
-        .btn:hover {
-            background: #0d2e33;
-        }
-
-        .choice-wrapper {
             margin-top: 10px;
-            margin-bottom: 10px;
+            font-size: 13.5px;
+            font-weight: 600;
+            font-family: inherit;
+            transition: background .2s, transform .15s;
         }
+
+        .btn:hover { background: var(--blue-deep); transform: translateY(-1px); }
+
+        button[type="submit"].btn {
+            background: var(--amber);
+            color: var(--navy-2);
+            font-size: 16px;
+            font-weight: 800;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 12px 28px rgba(246,168,33,.36);
+        }
+
+        button[type="submit"].btn:hover { background: var(--amber-dark); transform: translateY(-2px); }
+
+        .choice-wrapper { margin: 14px 0 10px; }
 
         .choice-wrapper label {
-            font-weight: normal;
-            display: inline-block;
-            margin-right: 20px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin: 6px 18px 6px 0;
             font-size: 15px;
+            color: var(--body-c);
+        }
+
+        .choice-wrapper input[type="radio"] {
+            width: auto;
+            margin: 0;
+            accent-color: var(--blue);
         }
 
         .signature-box {
-            border: 2px solid #ccc;
+            border: 2px dashed var(--line);
+            background: var(--bg-soft);
             width: 100%;
             height: 160px;
-            border-radius: 6px;
-            margin-top: 8px;
+            border-radius: 12px;
+            margin-top: 10px;
             display: block;
+        }
+
+        @media (max-width: 640px) {
+            .container { margin: 0; border-radius: 0; padding: 26px 18px; }
         }
     </style>
 </head>
