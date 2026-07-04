@@ -302,7 +302,7 @@
                 <td><input type="number" name="item_quantity[]" min="1"></td>
                 <td><input type="number" step="0.01" name="item_weight[]"></td>
                 <td><input type="text" name="item_origin[]"></td>
-                <td><input type="number" step="0.01" name="item_value[]" oninput="updateDeclaredValue()"></td>
+                <td><input type="number" step="0.01" name="item_value[]" oninput="updateDeclaredValue()" required></td>
                 <td><button type="button" class="btn" onclick="deleteRow(this)">Delete</button></td>
             </tr>
       </table>
@@ -462,7 +462,7 @@ function addRow() {
         <td><input type="number" name="item_quantity[]" min="1"></td>
         <td><input type="number" step="0.01" name="item_weight[]"></td>
         <td><input type="text" name="item_origin[]"></td>
-        <td><input type="number" step="0.01" name="item_value[]" oninput="updateDeclaredValue()"></td>
+        <td><input type="number" step="0.01" name="item_value[]" oninput="updateDeclaredValue()" required></td>
         <td><button type="button" class="btn" onclick="deleteRow(this)">Delete</button></td>
     `;
 }
