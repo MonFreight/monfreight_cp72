@@ -260,38 +260,36 @@ def generate_cp72_pdf(
         c.setDash(2, 3)
         c.line(M, H - 29 * mm, W - M, H - 29 * mm)
         c.restoreState()
-        # logo on a white chip
-        logo_path = os.path.join("static", "monfreight_logo.png")
+        # white route illustration on the right (like the website headers)
+        illu_path = os.path.join("static", "route-illustration-white.png")
+        if os.path.exists(illu_path):
+            try:
+                c.drawImage(illu_path, W - 62 * mm, H - 33 * mm, width=47 * mm,
+                            height=31 * mm, preserveAspectRatio=True, mask="auto")
+            except Exception:
+                pass
+        # white circular MF logo, straight on the navy band
+        logo_path = os.path.join("static", "logo-white.png")
         if os.path.exists(logo_path):
             try:
-                c.setFillColor(colors.white)
-                c.roundRect(M, H - 20 * mm, 42 * mm, 14 * mm, 3 * mm, fill=1, stroke=0)
-                c.drawImage(logo_path, M + 3 * mm, H - 18.5 * mm, width=36 * mm,
-                            height=11 * mm, preserveAspectRatio=True, mask="auto")
+                c.drawImage(logo_path, M, H - 31 * mm, width=28 * mm,
+                            height=28 * mm, preserveAspectRatio=True, mask="auto")
             except Exception:
                 pass
         # titles
         c.setFillColor(colors.white)
         c.setFont("NotoSans-Bold", 15)
         title = "CP72 CUSTOMS DECLARATION" + (" (CONTINUED)" if continued else "")
-        c.drawString(M + 47 * mm, H - 13.5 * mm, title)
+        c.drawString(M + 33 * mm, H - 13.5 * mm, title)
         c.setFillColor(colors.HexColor("#9fd6e4"))
         c.setFont("NotoSans", 8.5)
-        c.drawString(M + 47 * mm, H - 18.5 * mm, "Mon Freight Pty Ltd  ·  Австрали → Монгол агаарын карго")
-        # plane over the route line
-        plane_path = os.path.join("static", "plane.png")
-        if os.path.exists(plane_path):
-            try:
-                c.drawImage(plane_path, W - 62 * mm, H - 32.5 * mm, width=40 * mm,
-                            height=10.3 * mm, preserveAspectRatio=True, mask="auto")
-            except Exception:
-                pass
+        c.drawString(M + 33 * mm, H - 18.5 * mm, "Mon Freight Pty Ltd  ·  Австрали → Монгол агаарын карго")
         # box number chip
         c.setFillColor(AMBER)
-        c.roundRect(M + 47 * mm, H - 27.5 * mm, 60 * mm, 6.5 * mm, 2 * mm, fill=1, stroke=0)
+        c.roundRect(M + 33 * mm, H - 27.5 * mm, 60 * mm, 6.5 * mm, 2 * mm, fill=1, stroke=0)
         c.setFillColor(NAVY2)
         c.setFont("NotoSans-Bold", 9)
-        c.drawString(M + 50 * mm, H - 25.6 * mm, f"BOX {box_number}")
+        c.drawString(M + 36 * mm, H - 25.6 * mm, f"BOX {box_number}")
         c.setFillColor(colors.black)
         return H - band_h - 8 * mm
 
