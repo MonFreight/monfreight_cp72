@@ -4,163 +4,239 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mon Freight - CP72 Customs Declaration</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
+        :root {
+            --navy:#073a45; --navy-2:#052b34; --blue:#008fb0; --blue-deep:#0a6f86;
+            --sky:#e4f4f8; --amber:#f6a821; --amber-dark:#dd8e08;
+            --ink:#0f2229; --body-c:#41535c; --muted:#6c7d86;
+            --line:#e6edf1; --bg-soft:#f4f9fb;
+        }
+        * { box-sizing:border-box; }
         body {
-            font-family: Inter, Arial, sans-serif;
-            background: #f5f7f8;
-            margin: 0;
-            padding: 0;
+            font-family:"Plus Jakarta Sans",Inter,Arial,sans-serif;
+            background:var(--bg-soft); color:var(--body-c); margin:0; padding:0;
         }
 
-        .container {
-            max-width: 850px;
-            background: white;
-            margin: 40px auto;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 0 12px rgba(0,0,0,0.15);
+        /* ---- Hero band (matches monfreight.com.au page headers) ---- */
+        .hero {
+            position:relative; overflow:hidden; color:#fff;
+            background:
+                radial-gradient(700px 300px at 85% 10%, rgba(246,168,33,.18), transparent 60%),
+                radial-gradient(900px 380px at 0% 0%, rgba(0,143,176,.32), transparent 60%),
+                linear-gradient(120deg,var(--navy) 0%,var(--navy-2) 55%,#0b6b80 100%);
+            padding:52px 20px 84px;
         }
-
-        h2 {
-            text-align: center;
-            margin-top: 5px;
-            color: #1a505b;
+        .hero::before {
+            content:""; position:absolute; inset:0; pointer-events:none;
+            background-image:radial-gradient(circle at 1px 1px, rgba(255,255,255,.07) 1px, transparent 0);
+            background-size:26px 26px;
         }
-
-        .logo-box {
-            text-align: center;
-            margin-bottom: 10px;
+        .hero-inner { max-width:900px; margin:0 auto; position:relative; }
+        .hero .eyebrow {
+            display:inline-block; font-size:12.5px; font-weight:700; letter-spacing:.14em;
+            background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.18);
+            padding:7px 16px; border-radius:999px; margin-bottom:16px;
         }
-
-        .logo-box img {
-            width: 220px;
+        .hero img.logo { width:150px; display:block; margin-bottom:18px;
+            filter:brightness(0) invert(1); opacity:.95; }
+        .hero h1 { margin:0 0 10px; font-size:clamp(1.5rem,4vw,2.3rem); letter-spacing:-.03em; }
+        .hero p  { margin:0; color:#cfe6ec; font-size:1.02rem; max-width:560px; }
+        .hero .plane {
+            position:absolute; right:-30px; top:8px; width:min(38vw,340px);
+            filter:drop-shadow(0 18px 30px rgba(0,0,0,.35));
+            animation:float 5s ease-in-out infinite;
         }
+        @keyframes float { 0%,100%{transform:translateY(0) rotate(-2deg)} 50%{transform:translateY(-12px) rotate(1deg)} }
+        @media (max-width:760px){ .hero .plane{ display:none; } }
 
-        label {
-            font-weight: 600;
-            margin-top: 12px;
-            display: block;
+        /* ---- Form cards ---- */
+        .container { max-width:900px; margin:-46px auto 60px; padding:0 16px; position:relative; }
+        .card {
+            background:#fff; border:1px solid var(--line); border-radius:18px;
+            box-shadow:0 14px 40px rgba(7,58,69,.08);
+            padding:26px 26px 24px; margin-bottom:18px;
+            animation:rise .5s ease both;
         }
+        @keyframes rise { from{opacity:0; transform:translateY(14px)} to{opacity:1; transform:none} }
+        .card:nth-of-type(2){animation-delay:.05s} .card:nth-of-type(3){animation-delay:.1s}
+        .card:nth-of-type(4){animation-delay:.15s} .card:nth-of-type(5){animation-delay:.2s}
 
+        .card-head { display:flex; align-items:center; gap:12px; margin-bottom:6px; }
+        .step {
+            width:34px; height:34px; flex-shrink:0; border-radius:10px;
+            background:var(--sky); color:var(--blue-deep);
+            display:flex; align-items:center; justify-content:center;
+            font-weight:800; font-size:15px;
+        }
+        .card-head h3 { margin:0; color:var(--navy); font-size:1.06rem; letter-spacing:-.01em; }
+        .card-head small { display:block; color:var(--muted); font-weight:500; font-size:12.5px; margin-top:1px; }
+
+        label { font-weight:600; color:var(--ink); margin-top:14px; display:block; font-size:14px; }
         input, textarea {
-            width: 100%;
-            padding: 9px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            margin-top: 4px;
-            font-size: 15px;
+            width:100%; padding:11px 13px; border:1.5px solid var(--line); border-radius:10px;
+            margin-top:6px; font-size:15px; font-family:inherit; color:var(--ink); background:#fff;
+            transition:border-color .2s, box-shadow .2s;
         }
+        input:focus, textarea:focus { outline:none; border-color:var(--blue); box-shadow:0 0 0 3px rgba(0,143,176,.14); }
+        input[readonly] { background:var(--sky); border-color:var(--sky); color:var(--blue-deep); font-weight:700; }
+        textarea { resize:vertical; min-height:72px; }
 
-        textarea {
-            resize: vertical;
-        }
+        .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:0 16px; }
+        .grid4 { display:grid; grid-template-columns:repeat(4,1fr); gap:0 12px; }
+        @media (max-width:640px){ .grid2,.grid4{ grid-template-columns:1fr; } }
 
-        .section-title {
-            background: #1a505b;
-            color: white;
-            padding: 8px 14px;
-            border-radius: 5px;
-            margin-top: 25px;
-            font-size: 14px;
-            font-weight: 700;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-        }
-        th, td {
-            border: 1px solid #aaa;
-            padding: 8px;
-            font-size: 14px;
-        }
-        th {
-            background: #e1e1e1;
-        }
+        table { width:100%; border-collapse:collapse; margin-top:16px; }
+        th, td { border:1px solid var(--line); padding:8px; font-size:13.5px; }
+        th { background:var(--sky); color:var(--navy); font-weight:700; }
+        td input { margin-top:0; padding:8px 10px; }
+        .table-wrap { overflow-x:auto; }
 
         .btn {
-            background: #1a505b;
-            color: white;
-            padding: 8px 12px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            margin-top: 8px;
-            font-size: 13px;
+            background:var(--navy); color:#fff; padding:9px 15px; border:none; border-radius:9px;
+            cursor:pointer; margin-top:10px; font-size:13px; font-weight:600; font-family:inherit;
+            transition:background .2s, transform .15s;
         }
+        .btn:hover { background:var(--blue-deep); transform:translateY(-1px); }
 
-        .btn:hover {
-            background: #0d2e33;
-        }
-
-        .choice-wrapper {
-            margin-top: 10px;
-            margin-bottom: 10px;
-        }
-
+        .choice-wrapper { margin:12px 0 4px; display:grid; gap:10px; }
         .choice-wrapper label {
-            font-weight: normal;
-            display: inline-block;
-            margin-right: 20px;
-            font-size: 15px;
+            font-weight:600; display:flex; align-items:center; gap:11px; margin:0;
+            font-size:15px; color:var(--ink);
+            border:1.5px solid var(--line); border-radius:12px; padding:13px 15px;
+            cursor:pointer; transition:border-color .2s, background .2s;
         }
+        .choice-wrapper label:hover { border-color:var(--blue); background:var(--bg-soft); }
+        .choice-wrapper label:has(input:checked) {
+            border-color:var(--blue); background:var(--sky);
+            box-shadow:0 0 0 3px rgba(0,143,176,.12);
+        }
+        .choice-wrapper input[type="radio"] { width:auto; margin:0; accent-color:var(--blue); }
+
+
+        /* ---- 3D delivery option cards ---- */
+        .delivery-grid {
+            display:grid; grid-template-columns:repeat(3,1fr); gap:14px;
+            margin:16px 0 4px; perspective:1000px;
+        }
+        @media (max-width:700px){ .delivery-grid{ grid-template-columns:1fr; } }
+        .dcard {
+            position:relative; border:1.5px solid var(--line); border-radius:16px;
+            background:linear-gradient(180deg,#fff, var(--bg-soft));
+            padding:20px 14px 16px; text-align:center; cursor:pointer;
+            transform-style:preserve-3d; will-change:transform;
+            transition:transform .18s ease, border-color .2s, box-shadow .25s;
+        }
+        .dcard:hover { box-shadow:0 22px 44px rgba(7,58,69,.16); border-color:var(--blue); }
+        .dcard input[type="radio"] {
+            position:absolute; opacity:0; width:1px; height:1px; margin:0; pointer-events:none;
+        }
+        .dcard:has(input:checked) {
+            border-color:var(--blue); background:linear-gradient(180deg,#fff,var(--sky));
+            box-shadow:0 0 0 3px rgba(0,143,176,.18), 0 18px 38px rgba(7,58,69,.14);
+        }
+        .dcard:has(input:checked)::after {
+            content:"✓"; position:absolute; top:10px; right:12px;
+            width:24px; height:24px; border-radius:50%;
+            background:var(--blue); color:#fff; font-weight:800; font-size:14px;
+            display:flex; align-items:center; justify-content:center;
+        }
+        .dcard .ico {
+            width:96px; height:84px; margin:0 auto 10px; display:block;
+            transform:translateZ(46px); transition:transform .25s ease;
+            filter:drop-shadow(0 12px 14px rgba(7,58,69,.22));
+        }
+        .dcard:hover .ico { transform:translateZ(66px) scale(1.06); }
+        .dcard b  { display:block; color:var(--navy); font-size:15px; letter-spacing:-.01em; transform:translateZ(24px); }
+        .dcard span { display:block; color:var(--muted); font-size:13px; margin-top:3px; transform:translateZ(14px); }
 
         .signature-box {
-            border: 2px solid #ccc;
-            width: 100%;
-            height: 160px;
-            border-radius: 6px;
-            margin-top: 8px;
-            display: block;
+            border:2px dashed #c6d8de; background:var(--bg-soft);
+            width:100%; height:170px; border-radius:14px; margin-top:10px; display:block;
+            cursor:crosshair;
+        }
+
+        .submit-bar { padding:6px 0 0; }
+        button[type="submit"].btn {
+            width:100%; background:var(--amber); color:var(--navy-2);
+            font-size:17px; font-weight:800; padding:17px; border-radius:14px;
+            box-shadow:0 12px 28px rgba(246,168,33,.36); letter-spacing:.01em;
+        }
+        button[type="submit"].btn:hover { background:var(--amber-dark); transform:translateY(-2px); }
+        .submit-note { text-align:center; color:var(--muted); font-size:13px; margin-top:12px; }
+
+        .dotted-sep {
+            border:none; border-top:2px dotted #cfe0e6; margin:22px 0 4px;
         }
     </style>
 </head>
 <body>
 
+<div class="hero">
+  <div class="hero-inner">
+    <span class="eyebrow">🇦🇺 АВСТРАЛИ → МОНГОЛ 🇲🇳</span>
+    <h1>CP72 Customs Declaration</h1>
+    <p>Гаалийн мэдүүлгийн маягт — Монгол хэлээр бөглөнө үү! Бөглөж дууссаны дараа маягт тань Mon Freight-д шууд илгээгдэнэ.</p>
+    <img class="plane" src="/static/plane.png" alt="">
+  </div>
+</div>
+
 <div class="container">
 
-    <div class="logo-box">
-        <img src="/static/monfreight_logo.png" alt="Mon Freight Logo">
+  <form action="/submit_cp72" method="POST" onsubmit="submitSignature()">
+
+    <!-- Sender Details -->
+    <div class="card">
+      <div class="card-head">
+        <div class="step">1</div>
+        <h3>Sender Details <small>Илгээгчийн мэдээлэл</small></h3>
+      </div>
+
+      <label>Full Name / Овог, нэр:</label>
+      <input type="text" name="sender" required>
+
+      <label>Address / Хаяг:</label>
+      <textarea name="senderAddress" required></textarea>
+
+      <div class="grid2">
+        <div>
+          <label>Phone Number / Утасны дугаар:</label>
+          <input type="text" name="senderPhone" required>
+        </div>
+        <div>
+          <label for="boxNumber">Box Number / Ачааны дугаар: /Дугаар аваагүй бол цэг оруулна!/</label>
+          <input type="text" id="boxNumber" name="boxNumber" required>
+        </div>
+      </div>
     </div>
 
-    <h2>CP72 Customs Declaration Form / Монгол хэлээр бөглөнө үү! </h2>
+    <!-- Recipient Details -->
+    <div class="card">
+      <div class="card-head">
+        <div class="step">2</div>
+        <h3>Recipient Details <small>Хүлээн авагчийн мэдээлэл</small></h3>
+      </div>
 
-    <form action="/submit_cp72" method="POST" onsubmit="submitSignature()">
+      <label>Full Name / Овог, нэр:</label>
+      <input type="text" name="recipient" required>
 
-        <!-- Sender Details -->
-        <div class="section-title">Sender Details</div>
+      <label>Address / Хаяг:</label>
+      <textarea name="recipientAddress" required></textarea>
 
-        <label>Full Name / Овог, нэр:</label>
-        <input type="text" name="sender" required>
+      <label>Phone Number / Утасны дугаар:</label>
+      <input type="text" name="recipientPhone" required>
+    </div>
 
-        <label>Address / Хаяг:</label>
-        <textarea name="senderAddress" required></textarea>
+    <!-- Goods -->
+    <div class="card">
+      <div class="card-head">
+        <div class="step">3</div>
+        <h3>Goods Description <small>Ачааны жагсаалт</small></h3>
+      </div>
 
-        <label>Phone Number / Утасны дугаар:</label>
-        <input type="text" name="senderPhone" required>
-
-        <!-- Box Number -->
-        <label for="boxNumber">Box Number / Ачааны дугаар: / Дугаар аваагүй бол цэг оруулна!/</label>
-        <input type="text" id="boxNumber" name="boxNumber" required>
-
-        <!-- Recipient Details -->
-        <div class="section-title">Recipient Details</div>
-
-        <label>Full Name / Овог, нэр:</label>
-        <input type="text" name="recipient" required>
-
-        <label>Address / Хаяг:</label>
-        <textarea name="recipientAddress" required></textarea>
-
-        <label>Phone Number /  Утасны дугаар:</label>
-        <input type="text" name="recipientPhone" required>
-
-        <!-- Goods Table -->
-        <div class="section-title">Goods Description</div>
-
-        <table id="goodsTable">
+      <div class="table-wrap">
+      <table id="goodsTable">
             <tr>
                 <th>#</th>
                 <th>Description</th>
@@ -180,67 +256,147 @@
                 <td><input type="number" step="0.01" name="item_value[]" oninput="updateDeclaredValue()"></td>
                 <td><button type="button" class="btn" onclick="deleteRow(this)">Delete</button></td>
             </tr>
-        </table>
+      </table>
+      </div>
 
-        <button type="button" class="btn" onclick="addRow()">+ Add Row</button>
+      <button type="button" class="btn" onclick="addRow()">+ Add Row</button>
+    </div>
 
-        <!-- Weight Section -->
-        <div class="section-title">Weight & Measurement</div>
+    <!-- Weight & Value -->
+    <div class="card">
+      <div class="card-head">
+        <div class="step">4</div>
+        <h3>Weight &amp; Measurement <small>Жин, хэмжээс</small></h3>
+      </div>
 
-        <label>Actual Weight (kg):</label>
-        <input type="number" step="0.01" name="weight" id="weight" required oninput="calcVolume()">
-
-        <label>Length (cm):</label>
-        <input type="number" step="0.01" name="length" id="length" required oninput="calcVolume()">
-
-        <label>Width (cm):</label>
-        <input type="number" step="0.01" name="width" id="width" required oninput="calcVolume()">
-
-        <label>Height (cm):</label>
-        <input type="number" step="0.01" name="height" id="height" required oninput="calcVolume()">
-
-        <label>Volumetric Weight (kg):</label>
-        <input type="text" id="volumetricWeight" name="volumetricWeight" readonly>
-
-        <label>Chargeable Weight (kg):</label>
-        <input type="text" id="finalWeight" name="finalWeight" readonly>
-
-        <!-- Declared Value -->
-        <label><strong>Declared Total Value (AUD):</strong></label>
-        <input type="number" name="value" id="declaredValue" required>
-
-        <!-- Delivery Option -->
-        <div class="section-title">Delivery Option</div>
-
-        <div class="choice-wrapper">
-            <label><input type="radio" name="deliveryOption" value="📦 Warehouse Pickup" required> 📦 Warehouse Pickup / Агуулахаас авах</label>
-            <label><input type="radio" name="deliveryOption" value="🚚 Delivery to Address" required> 🚚 Delivery to Address / Хаягаар хүргүүлэх</label>
-            <label><input type="radio" name="deliveryOption" value="📮 Closest Parcel Box" required> 📮 Closest Parcel Box / Хайрцагт байршуулах</label>
+      <div class="grid4">
+        <div>
+          <label>Actual Weight (kg):</label>
+          <input type="number" step="0.01" name="weight" id="weight" required oninput="calcVolume()">
         </div>
-
-        <!-- Copy Email -->
-        <div class="section-title">Send Customer Copy?</div>
-
-        <div class="choice-wrapper">
-            <label><input type="radio" name="sendCopy" value="no" checked onclick="toggleCustomerEmail(false)"> No</label>
-            <label><input type="radio" name="sendCopy" value="yes" onclick="toggleCustomerEmail(true)"> Yes</label>
+        <div>
+          <label>Length (cm):</label>
+          <input type="number" step="0.01" name="length" id="length" required oninput="calcVolume()">
         </div>
+        <div>
+          <label>Width (cm):</label>
+          <input type="number" step="0.01" name="width" id="width" required oninput="calcVolume()">
+        </div>
+        <div>
+          <label>Height (cm):</label>
+          <input type="number" step="0.01" name="height" id="height" required oninput="calcVolume()">
+        </div>
+      </div>
 
-        <div id="customerEmailBox" style="display:none;">
+      <div class="grid2">
+        <div>
+          <label>Volumetric Weight (kg):</label>
+          <input type="text" id="volumetricWeight" name="volumetricWeight" readonly>
+        </div>
+        <div>
+          <label>Chargeable Weight (kg):</label>
+          <input type="text" id="finalWeight" name="finalWeight" readonly>
+        </div>
+      </div>
+
+      <hr class="dotted-sep">
+
+      <label><strong>Declared Total Value (AUD):</strong></label>
+      <input type="number" name="value" id="declaredValue" required>
+    </div>
+
+    <!-- Delivery & Copy -->
+    <div class="card">
+      <div class="card-head">
+        <div class="step">5</div>
+        <h3>Delivery Option <small>Хүлээн авах хэлбэр</small></h3>
+      </div>
+
+      <div class="delivery-grid">
+        <label class="dcard">
+          <input type="radio" name="deliveryOption" value="📦 Warehouse Pickup" required>
+          <svg class="ico" viewBox="0 0 96 84" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <ellipse cx="48" cy="76" rx="34" ry="6" fill="rgba(7,58,69,.14)"/>
+            <polygon points="16,38 48,22 80,38 80,70 16,70" fill="#0a6f86"/>
+            <polygon points="16,38 48,22 48,54 16,70" fill="#0d81a0"/>
+            <polygon points="12,40 48,20 84,40 48,26" fill="#073a45"/>
+            <rect x="38" y="48" width="20" height="22" rx="2" fill="#f6a821"/>
+            <rect x="38" y="48" width="20" height="4" fill="#dd8e08"/>
+            <rect x="41" y="54" width="14" height="2" fill="#dd8e08"/>
+            <rect x="41" y="59" width="14" height="2" fill="#dd8e08"/>
+            <rect x="22" y="46" width="9" height="8" fill="#e4f4f8"/>
+            <rect x="66" y="46" width="9" height="8" fill="#e4f4f8"/>
+          </svg>
+          <b>Warehouse Pickup</b>
+          <span>Агуулахаас авах</span>
+        </label>
+        <label class="dcard">
+          <input type="radio" name="deliveryOption" value="🚚 Delivery to Address" required>
+          <svg class="ico" viewBox="0 0 96 84" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <ellipse cx="48" cy="76" rx="36" ry="6" fill="rgba(7,58,69,.14)"/>
+            <rect x="12" y="34" width="46" height="28" rx="3" fill="#073a45"/>
+            <rect x="12" y="34" width="46" height="9" rx="3" fill="#0a6f86"/>
+            <polygon points="58,42 76,42 84,54 84,62 58,62" fill="#0d81a0"/>
+            <polygon points="62,45 74,45 80,54 62,54" fill="#e4f4f8"/>
+            <rect x="20" y="42" width="26" height="10" rx="1" fill="#f6a821"/>
+            <rect x="20" y="42" width="26" height="3" fill="#dd8e08"/>
+            <circle cx="28" cy="64" r="7.5" fill="#0f2229"/><circle cx="28" cy="64" r="3.5" fill="#8fa8b1"/>
+            <circle cx="70" cy="64" r="7.5" fill="#0f2229"/><circle cx="70" cy="64" r="3.5" fill="#8fa8b1"/>
+          </svg>
+          <b>Delivery to Address</b>
+          <span>Хаягаар хүргүүлэх</span>
+        </label>
+        <label class="dcard">
+          <input type="radio" name="deliveryOption" value="📮 Closest Parcel Box" required>
+          <svg class="ico" viewBox="0 0 96 84" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <ellipse cx="48" cy="76" rx="30" ry="6" fill="rgba(7,58,69,.14)"/>
+            <polygon points="26,18 70,18 76,24 76,72 26,72" fill="#0a6f86"/>
+            <rect x="26" y="18" width="44" height="54" rx="3" fill="#073a45"/>
+            <rect x="31" y="24" width="20" height="12" rx="2" fill="#0d81a0"/>
+            <rect x="31" y="40" width="20" height="12" rx="2" fill="#f6a821"/>
+            <rect x="31" y="56" width="20" height="12" rx="2" fill="#0d81a0"/>
+            <rect x="55" y="24" width="11" height="20" rx="2" fill="#34aecb"/>
+            <rect x="55" y="48" width="11" height="20" rx="2" fill="#0d81a0"/>
+            <circle cx="60.5" cy="34" r="2" fill="#e4f4f8"/>
+            <rect x="34" y="45" width="10" height="2" fill="#dd8e08"/>
+          </svg>
+          <b>Closest Parcel Box</b>
+          <span>Хайрцагт байршуулах</span>
+        </label>
+      </div>
+
+      <hr class="dotted-sep">
+
+      <label>Send Customer Copy? / Танд хуулбар илгээх үү?</label>
+      <div class="choice-wrapper">
+            <label><input type="radio" name="sendCopy" value="no" checked onclick="toggleCustomerEmail(false)"> No / Үгүй</label>
+            <label><input type="radio" name="sendCopy" value="yes" onclick="toggleCustomerEmail(true)"> Yes / Тийм</label>
+      </div>
+
+      <div id="customerEmailBox" style="display:none;">
             <label>Your Email:</label>
             <input type="email" name="customerEmail">
-        </div>
+      </div>
+    </div>
 
-        <!-- Signature -->
-        <div class="section-title">Signature</div>
+    <!-- Signature -->
+    <div class="card">
+      <div class="card-head">
+        <div class="step">6</div>
+        <h3>Signature <small>Гарын үсэг</small></h3>
+      </div>
 
-        <canvas id="signaturePad" class="signature-box"></canvas>
-        <button type="button" class="btn" onclick="clearSignature()">Clear Signature</button>
-        <input type="hidden" id="signatureData" name="signatureData">
+      <canvas id="signaturePad" class="signature-box"></canvas>
+      <button type="button" class="btn" onclick="clearSignature()">Clear Signature</button>
+      <input type="hidden" id="signatureData" name="signatureData">
+    </div>
 
-        <button type="submit" class="btn" style="width:100%; margin-top:25px;">Submit CP72</button>
+    <div class="submit-bar">
+      <button type="submit" class="btn">Submit CP72 ✈</button>
+      <p class="submit-note">Маягт илгээгдсэний дараа PDF хэлбэрээр Mon Freight-д очно.</p>
+    </div>
 
-    </form>
+  </form>
 </div>
 
 <script>
@@ -386,5 +542,24 @@ window.onload = function() {
 
 </script>
 
+
+<script>
+/* 3D tilt for delivery cards — follows the cursor, resets on leave */
+(function () {
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.querySelectorAll('.dcard').forEach(function (card) {
+    card.addEventListener('mousemove', function (e) {
+      var r = card.getBoundingClientRect();
+      var px = (e.clientX - r.left) / r.width - 0.5;
+      var py = (e.clientY - r.top) / r.height - 0.5;
+      card.style.transform =
+        'rotateY(' + (px * 16) + 'deg) rotateX(' + (-py * 14) + 'deg) translateY(-4px)';
+    });
+    card.addEventListener('mouseleave', function () {
+      card.style.transform = '';
+    });
+  });
+})();
+</script>
 </body>
 </html>

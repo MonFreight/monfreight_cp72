@@ -197,8 +197,20 @@ def wrap_text(text, max_chars):
 
 
 # --------------------------
-# PDF GENERATOR
+# PDF GENERATOR — Mon Freight branded layout
 # --------------------------
+NAVY  = colors.HexColor("#073a45")
+NAVY2 = colors.HexColor("#052b34")
+TEAL  = colors.HexColor("#008fb0")
+TEALD = colors.HexColor("#0a6f86")
+SKY   = colors.HexColor("#e4f4f8")
+SOFT  = colors.HexColor("#f4f9fb")
+AMBER = colors.HexColor("#f6a821")
+LINE  = colors.HexColor("#d7e2e8")
+INK   = colors.HexColor("#0f2229")
+MUTED = colors.HexColor("#6c7d86")
+
+
 def generate_cp72_pdf(
     sender,
     sender_address,
@@ -220,233 +232,246 @@ def generate_cp72_pdf(
 ):
     buffer = io.BytesIO()
     c = canvas.Canvas(buffer, pagesize=A4)
-    width_page, height_page = A4
-    page_number = 1 
+    W, H = A4
+    M = 15 * mm
+    CW = W - 2 * M          # content width
+    page = 1
 
-    # --------------------------
-    # LOGO (slightly bigger, top-right)
-    # --------------------------
-    logo_path = os.path.join("static", "monfreight_logo.png")
-    if os.path.exists(logo_path):
-        try:
-            c.drawImage(
-                logo_path,
-                width_page - 55 * mm,       # a bit more left
-                height_page - 24 * mm,      # slightly higher
-                width=48 * mm,              # bigger logo (Option A)
-                height=17 * mm,
-                preserveAspectRatio=True,
-                mask="auto",
-            )
-        except Exception:
-            pass
-
-    # --------------------------
-    # TITLE
-    # --------------------------
-    c.setFont("NotoSans-Bold", 16)
-    c.drawString(20 * mm, height_page - 20 * mm, "MON FREIGHT")
-    
-    title_y = height_page - 27 * mm
-    c.setFont("NotoSans-Bold", 13)
-    c.drawString(20 * mm, title_y, "CP72 CUSTOMS DECLARATION FORM")
-
-    c.setFont("NotoSans-Bold", 13)
-    c.drawRightString(width_page - 20 * mm, title_y, f"Box Number: {box_number}")
-
-    y = height_page - 40 * mm
-
-    # --------------------------
-    # SECTION HEADER TOOL
-    # --------------------------
-    def section_header(label):
-        nonlocal y
-        c.setFillColorRGB(0.10, 0.31, 0.36)
-        c.rect(20 * mm, y, width_page - 40 * mm, 7 * mm, fill=1)
-        c.setFillColor(colors.white)
-        c.setFont("NotoSans-Bold", 10)
-        c.drawString(23 * mm, y + 2.2 * mm, label)
+    # ---------- footer ----------
+    def footer():
+        c.setStrokeColor(TEAL)
+        c.setLineWidth(0.8)
+        c.line(M, 13 * mm, W - M, 13 * mm)
+        c.setFont("NotoSans", 7.5)
+        c.setFillColor(MUTED)
+        c.drawString(M, 9.5 * mm, "Mon Freight Pty Ltd  ·  monfreight.com.au  ·  info@monfreight.com.au")
+        c.drawRightString(W - M, 9.5 * mm, f"Page {page}")
         c.setFillColor(colors.black)
-        y -= 8 * mm  # tight, but not too cramped
 
-    # --------------------------
-    # SENDER DETAILS (tight courier style)
-    # --------------------------
-    section_header("SENDER DETAILS")
-    c.setFont("NotoSans", 10)
-    c.setFont("NotoSans-Bold", 10)
-    c.drawString(20 * mm, y, f"Full Name / Овог нэр: {sender}")
-    y -= 4 * mm
+    # ---------- header band ----------
+    def header_band(continued=False):
+        band_h = 34 * mm
+        c.setFillColor(NAVY)
+        c.rect(0, H - band_h, W, band_h, fill=1, stroke=0)
+        # subtle dashed flight route across the band
+        c.saveState()
+        c.setStrokeColor(colors.Color(1, 1, 1, alpha=0.35))
+        c.setLineWidth(0.9)
+        c.setDash(2, 3)
+        c.line(M, H - 29 * mm, W - M, H - 29 * mm)
+        c.restoreState()
+        # white route illustration on the right (like the website headers)
+        illu_path = os.path.join("static", "route-illustration-white.png")
+        if os.path.exists(illu_path):
+            try:
+                c.drawImage(illu_path, W - 62 * mm, H - 33 * mm, width=47 * mm,
+                            height=31 * mm, preserveAspectRatio=True, mask="auto")
+            except Exception:
+                pass
+        # white circular MF logo, straight on the navy band
+        logo_path = os.path.join("static", "logo-white.png")
+        if os.path.exists(logo_path):
+            try:
+                c.drawImage(logo_path, M, H - 31 * mm, width=28 * mm,
+                            height=28 * mm, preserveAspectRatio=True, mask="auto")
+            except Exception:
+                pass
+        # titles
+        c.setFillColor(colors.white)
+        c.setFont("NotoSans-Bold", 15)
+        title = "CP72 CUSTOMS DECLARATION" + (" (CONTINUED)" if continued else "")
+        c.drawString(M + 33 * mm, H - 13.5 * mm, title)
+        c.setFillColor(colors.HexColor("#9fd6e4"))
+        c.setFont("NotoSans", 8.5)
+        c.drawString(M + 33 * mm, H - 18.5 * mm, "Mon Freight Pty Ltd  ·  Австрали → Монгол агаарын карго")
+        # box number chip
+        c.setFillColor(AMBER)
+        c.roundRect(M + 33 * mm, H - 27.5 * mm, 60 * mm, 6.5 * mm, 2 * mm, fill=1, stroke=0)
+        c.setFillColor(NAVY2)
+        c.setFont("NotoSans-Bold", 9)
+        c.drawString(M + 36 * mm, H - 25.6 * mm, f"BOX {box_number}")
+        c.setFillColor(colors.black)
+        return H - band_h - 8 * mm
 
-    c.drawString(20 * mm, y, f"Phone / Утас: {sender_phone}")
-    y -= 4 * mm
+    y = header_band()
 
-    c.drawString(20 * mm, y, "Address / Хаяг:")
-    y -= 4 * mm
+    def ensure(needed):
+        nonlocal y, page
+        if y - needed < 20 * mm:
+            footer()
+            c.showPage()
+            page += 1
+            y = header_band(continued=True)
 
-    
-    for line in wrap_text(sender_address, 95):
-        c.drawString(25 * mm, y, line)
-        y -= 4 * mm
+    # ---------- section label ----------
+    def section(label, mn):
+        nonlocal y
+        ensure(14 * mm)
+        c.setFillColor(TEAL)
+        c.rect(M, y - 1.2 * mm, 3 * mm, 3 * mm, fill=1, stroke=0)
+        c.setFillColor(NAVY)
+        c.setFont("NotoSans-Bold", 10.5)
+        c.drawString(M + 5 * mm, y - 1 * mm, label)
+        c.setFillColor(MUTED)
+        c.setFont("NotoSans", 8)
+        c.drawString(M + 5 * mm + c.stringWidth(label, "NotoSans-Bold", 10.5) + 3 * mm, y - 1 * mm, mn)
+        c.setFillColor(colors.black)
+        y -= 7 * mm
 
-    y -= 6 * mm  # small gap before next block
+    # ---------- sender / recipient side-by-side cards ----------
+    def party_card(x, w, title, mn, name, phone, address):
+        addr_lines = wrap_text(address, 44)
+        card_h = (37 + 4.5 * max(1, len(addr_lines))) * mm
+        c.setStrokeColor(LINE)
+        c.setLineWidth(1)
+        c.setFillColor(colors.white)
+        c.roundRect(x, y - card_h, w, card_h, 3 * mm, fill=1, stroke=1)
+        # header strip
+        c.setFillColor(SKY)
+        c.roundRect(x, y - 8 * mm, w, 8 * mm, 3 * mm, fill=1, stroke=0)
+        c.rect(x, y - 8 * mm, w, 4 * mm, fill=1, stroke=0)
+        c.setFillColor(TEALD)
+        c.setFont("NotoSans-Bold", 9.5)
+        c.drawString(x + 4 * mm, y - 5.6 * mm, title)
+        c.setFont("NotoSans", 8)
+        c.drawRightString(x + w - 4 * mm, y - 5.6 * mm, mn)
+        # fields
+        yy = y - 13.5 * mm
+        c.setFont("NotoSans", 7.5); c.setFillColor(MUTED)
+        c.drawString(x + 4 * mm, yy, "FULL NAME / ОВОГ НЭР")
+        c.setFont("NotoSans-Bold", 10); c.setFillColor(INK)
+        c.drawString(x + 4 * mm, yy - 4.2 * mm, name)
+        yy -= 9.5 * mm
+        c.setFont("NotoSans", 7.5); c.setFillColor(MUTED)
+        c.drawString(x + 4 * mm, yy, "PHONE / УТАС")
+        c.setFont("NotoSans-Bold", 10); c.setFillColor(INK)
+        c.drawString(x + 4 * mm, yy - 4.2 * mm, phone)
+        yy -= 9.5 * mm
+        c.setFont("NotoSans", 7.5); c.setFillColor(MUTED)
+        c.drawString(x + 4 * mm, yy, "ADDRESS / ХАЯГ")
+        c.setFont("NotoSans", 9); c.setFillColor(INK)
+        ly = yy - 4.2 * mm
+        for line in addr_lines:
+            c.drawString(x + 4 * mm, ly, line)
+            ly -= 4.5 * mm
+        c.setFillColor(colors.black)
+        return card_h
 
-    # --------------------------
-    # RECIPIENT DETAILS
-    # --------------------------
-    section_header("RECIPIENT DETAILS")
-    c.drawString(20 * mm, y, f"Full Name / Овог нэр: {recipient}")
-    y -= 4 * mm
+    gap = 6 * mm
+    col_w = (CW - gap) / 2
+    ensure(60 * mm)
+    h1 = party_card(M, col_w, "SENDER", "Илгээгч", sender, sender_phone, sender_address)
+    h2 = party_card(M + col_w + gap, col_w, "RECIPIENT", "Хүлээн авагч", recipient, recipient_phone, recipient_address)
+    y -= max(h1, h2) + 8 * mm
 
-    c.drawString(20 * mm, y, f"Phone / Утас: {recipient_phone}")
-    y -= 4 * mm
+    # ---------- goods table ----------
+    section("GOODS DESCRIPTION", "Ачааны жагсаалт")
+    header_row = ["#", "Description", "Qty", "Weight (kg)", "Origin", "Value (AUD)"]
+    rows = goods_rows or [["-", "-", "-", "-", "-", "-"]]
 
-    c.drawString(20 * mm, y, "Address / Хаяг:")
-    y -= 4 * mm
+    def table_style(n_rows):
+        style = [
+            ("FONTNAME", (0, 0), (-1, 0), "NotoSans-Bold"),
+            ("FONTNAME", (0, 1), (-1, -1), "NotoSans"),
+            ("FONTSIZE", (0, 0), (-1, -1), 9),
+            ("TEXTCOLOR", (0, 0), (-1, 0), NAVY),
+            ("BACKGROUND", (0, 0), (-1, 0), SKY),
+            ("GRID", (0, 0), (-1, -1), 0.5, LINE),
+            ("ALIGN", (0, 0), (0, -1), "CENTER"),
+            ("ALIGN", (2, 0), (-1, -1), "CENTER"),
+            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+            ("TOPPADDING", (0, 0), (-1, -1), 3.5),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 3.5),
+        ]
+        for r in range(1, n_rows + 1):
+            if r % 2 == 0:
+                style.append(("BACKGROUND", (0, r), (-1, r), SOFT))
+        return TableStyle(style)
 
-    for line in wrap_text(recipient_address, 95):
-        c.drawString(25 * mm, y, line)
-        y -= 4 * mm
+    CHUNK = 10
+    i = 0
+    while i < len(rows):
+        chunk = rows[i:i + CHUNK]
+        ensure((len(chunk) + 1) * 8 * mm + 6 * mm)
+        t = Table([header_row] + chunk,
+                  colWidths=[10 * mm, 68 * mm, 15 * mm, 24 * mm, 26 * mm, 37 * mm])
+        t.setStyle(table_style(len(chunk)))
+        t.wrapOn(c, CW, y)
+        t.drawOn(c, M, y - t._height)
+        y -= t._height + 8 * mm
+        i += CHUNK
 
-    y -= 6 * mm
+    # ---------- weight & value chips ----------
+    section("WEIGHT & MEASUREMENTS", "Жин, хэмжээс")
+    ensure(26 * mm)
 
-    # --------------------------
-    # GOODS DESCRIPTION TABLE
-    # --------------------------
-    section_header("GOODS DESCRIPTION")
+    def chip(x, w, label, value, accent=False):
+        ch = 14 * mm
+        c.setFillColor(AMBER if accent else SOFT)
+        c.setStrokeColor(AMBER if accent else LINE)
+        c.setLineWidth(1)
+        c.roundRect(x, y - ch, w, ch, 2.5 * mm, fill=1, stroke=1)
+        c.setFont("NotoSans", 7)
+        c.setFillColor(NAVY2 if accent else MUTED)
+        c.drawCentredString(x + w / 2, y - 4.6 * mm, label)
+        c.setFont("NotoSans-Bold", 11)
+        c.setFillColor(NAVY2 if accent else INK)
+        c.drawCentredString(x + w / 2, y - 10.6 * mm, value)
+        c.setFillColor(colors.black)
 
-    table_data = [["#", "Description", "Qty", "Weight (kg)", "Origin", "Value (AUD)"]]
-    table_data.extend(goods_rows or [["-", "-", "-", "-", "-", "-"]])
-
-    table = Table(
-        table_data,
-        colWidths=[10 * mm, 60 * mm, 15 * mm, 20 * mm, 25 * mm, 25 * mm],
-    )
-
-    table.setStyle(TableStyle([
-           ("FONTNAME", (0, 0), (-1, 0), "NotoSans-Bold"),  # Header bold
-           ("FONTNAME", (0, 1), (-1, -1), "NotoSans"),  # Body cells
-           ("FONTSIZE", (0, 0), (-1, -1), 9),
-           ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey),
-           ("GRID", (0, 0), (-1, -1), 0.6, colors.black),
-           ("ALIGN", (0, 0), (0, -1), "CENTER"),
-           ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-    ]))
-
-    # --------------------------
-    # MULTIPAGE TABLE (First 12 rows stay on page 1)
-    # --------------------------
-
-    max_first_page_rows = 12
-
-    if len(goods_rows) > max_first_page_rows:
-        first_part = goods_rows[:max_first_page_rows]
-        remaining_part = goods_rows[max_first_page_rows:]
-    else:
-        first_part = goods_rows
-        remaining_part = []
-
-    # -------- TABLE STYLE ----------
-    table_style = TableStyle([
-        ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey),
-        ("FONTNAME", (0, 0), (-1, 0), "NotoSans-Bold"),
-        ("FONTNAME", (0, 1), (-1, -1), "NotoSans"),
-        ("FONTSIZE", (0, 0), (-1, -1), 9),
-        ("GRID", (0, 0), (-1, -1), 0.6, colors.black),
-        ("VALIGN", (0, 0), (-1, -1), "MIDDLE")
-    ])
-
-    # -------- PAGE 1 TABLE ----------
-    table_data_page1 = [["#", "Description", "Qty", "Weight (kg)", "Origin", "Value (AUD)"]] + first_part
-    table1 = Table(table_data_page1, colWidths=[10*mm, 60*mm, 15*mm, 20*mm, 25*mm, 25*mm])
-    table1.setStyle(table_style)
-
-    table1.wrapOn(c, width_page - 40*mm, y)
-    table1.drawOn(c, 20*mm, y - table1._height)
-    y -= table1._height + 10*mm
-
-    # ---- Page number bottom of page ----
+    cw4 = (CW - 3 * 4 * mm) / 4
+    chip(M, cw4, "ACTUAL WEIGHT", f"{weight} kg")
+    chip(M + (cw4 + 4 * mm), cw4, "VOLUMETRIC", f"{volumetric_weight} kg")
+    chip(M + 2 * (cw4 + 4 * mm), cw4, "CHARGEABLE", f"{final_weight} kg", accent=True)
+    chip(M + 3 * (cw4 + 4 * mm), cw4, "DECLARED VALUE", f"{declared_value} AUD")
+    y -= 18 * mm
     c.setFont("NotoSans", 9)
-    c.drawRightString(width_page - 15*mm, 10*mm, f"Page {page_number}")
+    c.setFillColor(MUTED)
+    c.drawString(M, y, f"Dimensions (L × W × H): {length} × {width_value} × {height} cm")
+    c.setFillColor(colors.black)
+    y -= 9 * mm
 
-    # -------- CONTINUE ON NEXT PAGE IF NEEDED ----------
-    if remaining_part:
-        page_number += 1
-        c.showPage()
+    # ---------- delivery option ----------
+    section("DELIVERY OPTION", "Хүлээн авах хэлбэр")
+    ensure(14 * mm)
+    c.setFillColor(SKY)
+    c.setStrokeColor(TEAL)
+    c.setLineWidth(1)
+    c.roundRect(M, y - 9 * mm, CW, 9 * mm, 2.5 * mm, fill=1, stroke=1)
+    c.setFillColor(TEALD)
+    c.setFont("NotoSans-Bold", 10)
+    c.drawString(M + 5 * mm, y - 6 * mm, delivery_option)
+    c.setFillColor(colors.black)
+    y -= 15 * mm
 
-        # continuation title
-        c.setFont("NotoSans-Bold", 13)
-        c.drawString(20 * mm, height_page - 20 * mm, "CP72 CUSTOMS DECLARATION FORM (Continued)")
-        y = height_page - 35 * mm
-
-        table_data_page2 = [["#", "Description", "Qty", "Weight (kg)", "Origin", "Value (AUD)"]] + remaining_part
-        table2 = Table(table_data_page2, colWidths=[10*mm, 60*mm, 15*mm, 20*mm, 25*mm, 25*mm])
-        table2.setStyle(table_style)
-
-        table2.wrapOn(c, width_page - 40*mm, y)
-        table2.drawOn(c, 20*mm, y - table2._height)
-        y -= table2._height + 10*mm
-
-        # Page number on second page
-        c.setFont("NotoSans", 9)
-        c.drawRightString(width_page - 15*mm, 10*mm, f"Page {page_number}")
-
-    # --------------------------
-    # WEIGHT & MEASUREMENTS
-    # --------------------------
-    section_header("WEIGHT & MEASUREMENTS")
-    c.drawString(20 * mm, y, f"Declared Value (AUD): {declared_value}")
-    y -= 4 * mm
-
-    c.drawString(20 * mm, y, f"Actual Weight: {weight} kg")
-    y -= 4 * mm
-
-    c.drawString(
-        20 * mm,
-        y,
-        f"Dimensions (L × W × H): {length} × {width_value} × {height} cm",
-    )
-    y -= 4 * mm
-
-    c.drawString(20 * mm, y, f"Volumetric Weight: {volumetric_weight} kg")
-    y -= 4 * mm
-
-    c.drawString(20 * mm, y, f"Chargeable Weight: {final_weight} kg")
-    y -= 8 * mm
-
-    # --------------------------
-    # DELIVERY OPTION
-    # --------------------------
-    section_header("DELIVERY OPTION")
-    c.drawString(20 * mm, y, f"Selected Option: {delivery_option}")
-    y -= 10 * mm
-
-    # --------------------------
-    # SIGNATURE (aligned with text)
-    # --------------------------
-    section_header("SIGNATURE")
-    c.drawString(20 * mm, y -1 * mm, "Sender Signature:")
-    
-
-    sig_y = y - 8 * mm
-
+    # ---------- signature ----------
+    section("SIGNATURE", "Гарын үсэг")
+    ensure(30 * mm)
+    c.saveState()
+    c.setStrokeColor(LINE)
+    c.setLineWidth(1.2)
+    c.setDash(3, 3)
+    c.roundRect(M, y - 24 * mm, 85 * mm, 24 * mm, 3 * mm, fill=0, stroke=1)
+    c.restoreState()
+    c.setFont("NotoSans", 7.5)
+    c.setFillColor(MUTED)
+    c.drawString(M + 3 * mm, y - 22 * mm, "SENDER SIGNATURE / ИЛГЭЭГЧИЙН ГАРЫН ҮСЭГ")
     if signature_image:
         try:
-            c.drawImage(
-                signature_image,
-                65 * mm,
-                sig_y,
-                width=60 * mm,
-                height=20 * mm,
-                preserveAspectRatio=True,
-                mask="auto",
-            )
+            c.drawImage(signature_image, M + 12 * mm, y - 21 * mm, width=60 * mm,
+                        height=17 * mm, preserveAspectRatio=True, mask="auto")
         except Exception:
             pass
+    c.setFont("NotoSans", 7.5)
+    c.setFillColor(MUTED)
+    c.drawString(M + 95 * mm, y - 6 * mm, "DATE / ОГНОО")
+    c.setFont("NotoSans-Bold", 11)
+    c.setFillColor(INK)
+    c.drawString(M + 95 * mm, y - 11.5 * mm, datetime.datetime.now().strftime("%Y-%m-%d"))
+    c.setFillColor(colors.black)
+    y -= 30 * mm
 
-    c.drawString(120 * mm, y, f"Date: {datetime.datetime.now().strftime('%Y-%m-%d')}")
-    y -= 20 * mm
-
+    footer()
     c.showPage()
     c.save()
 
