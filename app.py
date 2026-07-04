@@ -291,7 +291,7 @@ def generate_cp72_pdf(
         c.roundRect(M + 47 * mm, H - 27.5 * mm, 60 * mm, 6.5 * mm, 2 * mm, fill=1, stroke=0)
         c.setFillColor(NAVY2)
         c.setFont("NotoSans-Bold", 9)
-        c.drawString(M + 50 * mm, H - 25.6 * mm, f"BOX № {box_number}")
+        c.drawString(M + 50 * mm, H - 25.6 * mm, f"BOX {box_number}")
         c.setFillColor(colors.black)
         return H - band_h - 8 * mm
 
