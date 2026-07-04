@@ -114,6 +114,43 @@
         }
         .choice-wrapper input[type="radio"] { width:auto; margin:0; accent-color:var(--blue); }
 
+
+        /* ---- 3D delivery option cards ---- */
+        .delivery-grid {
+            display:grid; grid-template-columns:repeat(3,1fr); gap:14px;
+            margin:16px 0 4px; perspective:1000px;
+        }
+        @media (max-width:700px){ .delivery-grid{ grid-template-columns:1fr; } }
+        .dcard {
+            position:relative; border:1.5px solid var(--line); border-radius:16px;
+            background:linear-gradient(180deg,#fff, var(--bg-soft));
+            padding:20px 14px 16px; text-align:center; cursor:pointer;
+            transform-style:preserve-3d; will-change:transform;
+            transition:transform .18s ease, border-color .2s, box-shadow .25s;
+        }
+        .dcard:hover { box-shadow:0 22px 44px rgba(7,58,69,.16); border-color:var(--blue); }
+        .dcard input[type="radio"] {
+            position:absolute; opacity:0; width:1px; height:1px; margin:0; pointer-events:none;
+        }
+        .dcard:has(input:checked) {
+            border-color:var(--blue); background:linear-gradient(180deg,#fff,var(--sky));
+            box-shadow:0 0 0 3px rgba(0,143,176,.18), 0 18px 38px rgba(7,58,69,.14);
+        }
+        .dcard:has(input:checked)::after {
+            content:"✓"; position:absolute; top:10px; right:12px;
+            width:24px; height:24px; border-radius:50%;
+            background:var(--blue); color:#fff; font-weight:800; font-size:14px;
+            display:flex; align-items:center; justify-content:center;
+        }
+        .dcard .ico {
+            width:96px; height:84px; margin:0 auto 10px; display:block;
+            transform:translateZ(46px); transition:transform .25s ease;
+            filter:drop-shadow(0 12px 14px rgba(7,58,69,.22));
+        }
+        .dcard:hover .ico { transform:translateZ(66px) scale(1.06); }
+        .dcard b  { display:block; color:var(--navy); font-size:15px; letter-spacing:-.01em; transform:translateZ(24px); }
+        .dcard span { display:block; color:var(--muted); font-size:13px; margin-top:3px; transform:translateZ(14px); }
+
         .signature-box {
             border:2px dashed #c6d8de; background:var(--bg-soft);
             width:100%; height:170px; border-radius:14px; margin-top:10px; display:block;
@@ -275,10 +312,57 @@
         <h3>Delivery Option <small>Хүлээн авах хэлбэр</small></h3>
       </div>
 
-      <div class="choice-wrapper">
-            <label><input type="radio" name="deliveryOption" value="📦 Warehouse Pickup" required> 📦 Warehouse Pickup / Агуулахаас авах</label>
-            <label><input type="radio" name="deliveryOption" value="🚚 Delivery to Address" required> 🚚 Delivery to Address / Хаягаар хүргүүлэх</label>
-            <label><input type="radio" name="deliveryOption" value="📮 Closest Parcel Box" required> 📮 Closest Parcel Box / Хайрцагт байршуулах</label>
+      <div class="delivery-grid">
+        <label class="dcard">
+          <input type="radio" name="deliveryOption" value="📦 Warehouse Pickup" required>
+          <svg class="ico" viewBox="0 0 96 84" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <ellipse cx="48" cy="76" rx="34" ry="6" fill="rgba(7,58,69,.14)"/>
+            <polygon points="16,38 48,22 80,38 80,70 16,70" fill="#0a6f86"/>
+            <polygon points="16,38 48,22 48,54 16,70" fill="#0d81a0"/>
+            <polygon points="12,40 48,20 84,40 48,26" fill="#073a45"/>
+            <rect x="38" y="48" width="20" height="22" rx="2" fill="#f6a821"/>
+            <rect x="38" y="48" width="20" height="4" fill="#dd8e08"/>
+            <rect x="41" y="54" width="14" height="2" fill="#dd8e08"/>
+            <rect x="41" y="59" width="14" height="2" fill="#dd8e08"/>
+            <rect x="22" y="46" width="9" height="8" fill="#e4f4f8"/>
+            <rect x="66" y="46" width="9" height="8" fill="#e4f4f8"/>
+          </svg>
+          <b>Warehouse Pickup</b>
+          <span>Агуулахаас авах</span>
+        </label>
+        <label class="dcard">
+          <input type="radio" name="deliveryOption" value="🚚 Delivery to Address" required>
+          <svg class="ico" viewBox="0 0 96 84" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <ellipse cx="48" cy="76" rx="36" ry="6" fill="rgba(7,58,69,.14)"/>
+            <rect x="12" y="34" width="46" height="28" rx="3" fill="#073a45"/>
+            <rect x="12" y="34" width="46" height="9" rx="3" fill="#0a6f86"/>
+            <polygon points="58,42 76,42 84,54 84,62 58,62" fill="#0d81a0"/>
+            <polygon points="62,45 74,45 80,54 62,54" fill="#e4f4f8"/>
+            <rect x="20" y="42" width="26" height="10" rx="1" fill="#f6a821"/>
+            <rect x="20" y="42" width="26" height="3" fill="#dd8e08"/>
+            <circle cx="28" cy="64" r="7.5" fill="#0f2229"/><circle cx="28" cy="64" r="3.5" fill="#8fa8b1"/>
+            <circle cx="70" cy="64" r="7.5" fill="#0f2229"/><circle cx="70" cy="64" r="3.5" fill="#8fa8b1"/>
+          </svg>
+          <b>Delivery to Address</b>
+          <span>Хаягаар хүргүүлэх</span>
+        </label>
+        <label class="dcard">
+          <input type="radio" name="deliveryOption" value="📮 Closest Parcel Box" required>
+          <svg class="ico" viewBox="0 0 96 84" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <ellipse cx="48" cy="76" rx="30" ry="6" fill="rgba(7,58,69,.14)"/>
+            <polygon points="26,18 70,18 76,24 76,72 26,72" fill="#0a6f86"/>
+            <rect x="26" y="18" width="44" height="54" rx="3" fill="#073a45"/>
+            <rect x="31" y="24" width="20" height="12" rx="2" fill="#0d81a0"/>
+            <rect x="31" y="40" width="20" height="12" rx="2" fill="#f6a821"/>
+            <rect x="31" y="56" width="20" height="12" rx="2" fill="#0d81a0"/>
+            <rect x="55" y="24" width="11" height="20" rx="2" fill="#34aecb"/>
+            <rect x="55" y="48" width="11" height="20" rx="2" fill="#0d81a0"/>
+            <circle cx="60.5" cy="34" r="2" fill="#e4f4f8"/>
+            <rect x="34" y="45" width="10" height="2" fill="#dd8e08"/>
+          </svg>
+          <b>Closest Parcel Box</b>
+          <span>Хайрцагт байршуулах</span>
+        </label>
       </div>
 
       <hr class="dotted-sep">
@@ -458,5 +542,24 @@ window.onload = function() {
 
 </script>
 
+
+<script>
+/* 3D tilt for delivery cards — follows the cursor, resets on leave */
+(function () {
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.querySelectorAll('.dcard').forEach(function (card) {
+    card.addEventListener('mousemove', function (e) {
+      var r = card.getBoundingClientRect();
+      var px = (e.clientX - r.left) / r.width - 0.5;
+      var py = (e.clientY - r.top) / r.height - 0.5;
+      card.style.transform =
+        'rotateY(' + (px * 16) + 'deg) rotateX(' + (-py * 14) + 'deg) translateY(-4px)';
+    });
+    card.addEventListener('mouseleave', function () {
+      card.style.transform = '';
+    });
+  });
+})();
+</script>
 </body>
 </html>
