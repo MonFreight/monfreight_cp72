@@ -91,7 +91,21 @@
         th, td { border:1px solid var(--line); padding:8px; font-size:13.5px; }
         th { background:var(--sky); color:var(--navy); font-weight:700; }
         td input { margin-top:0; padding:8px 10px; }
-        .table-wrap { overflow-x:auto; }
+        .table-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+        .scroll-hint { display:none; }
+        @media (max-width:700px) {
+            /* keep columns readable: real widths + sideways swipe instead of crushing */
+            #goodsTable { min-width:640px; }
+            #goodsTable td input { font-size:16px; padding:10px; min-width:64px; }
+            #goodsTable td:nth-child(2) input { min-width:170px; }
+            .scroll-hint {
+                display:flex; align-items:center; gap:8px;
+                color:var(--blue-deep); font-size:13px; font-weight:600;
+                margin-top:8px;
+            }
+            .scroll-hint::before { content:"↔"; font-size:16px; }
+            input, textarea { font-size:16px; } /* stops iOS zoom-jump on focus */
+        }
 
         .btn {
             background:var(--navy); color:#fff; padding:9px 15px; border:none; border-radius:9px;
@@ -293,6 +307,7 @@
             </tr>
       </table>
       </div>
+      <p class="scroll-hint">Хүснэгтийг хажуу тийш гүйлгэж харна уу / Swipe sideways to see all columns</p>
 
       <button type="button" class="btn" onclick="addRow()">+ Add Row</button>
     </div>
